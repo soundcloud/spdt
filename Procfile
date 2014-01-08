@@ -1,0 +1,1 @@
+api: serve/bin/web

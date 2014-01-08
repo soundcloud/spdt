@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -u
+
+exec 2>&1
+
+BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../.."
+
+jar=$BASE_DIR/compute/target/scala-2.11/spdt-compute.jar
+
+export LD_LIBRARY_PATH=target/lib
+
+java -jar \
+  -Dlogback.configurationFile="file://${BASE_DIR}/config/logback.run.xml" \
+  -Dprocess.name="cli" \
+  -Dmetrics.namespace="spdt" \
+  -Dfile.encoding="UTF-8" \
+  -Xms512M \
+  -Xmx8192M \
+  $jar com.soundcloud.spdt.CLI "$@"
