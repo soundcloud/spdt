@@ -1,7 +1,6 @@
 package com.soundcloud.spdt
 
 import play.api.libs.json._
-import play.api.data.validation.ValidationError
 
 object Feature {
   trait Type
@@ -27,9 +26,9 @@ object Sample {
       val values: Seq[Double] = (json \ "values").as[Seq[Double]]
       val label: Option[Int]  = (json \ "label").asOpt[Int]
 
-      (keys.length == values.length) match {
+      keys.length == values.length match {
         case true  => JsSuccess(Sample(keys.zip(values).toMap, label))
-        case false => JsError(Seq(JsPath() -> Seq(ValidationError("validate.error.expected.sparse.features"))))
+        case false => JsError(Seq(JsPath() -> Seq(JsonValidationError("validate.error.expected.sparse.features"))))
       }
     }
   }

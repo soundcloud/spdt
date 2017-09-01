@@ -1,10 +1,7 @@
 package com.soundcloud.spdt.serve
 
-import uk.co.bigbeeconsultants.http.{ HttpClient, Config }
-import uk.co.bigbeeconsultants.http.request.RequestBody
-import uk.co.bigbeeconsultants.http.header._
-
 import play.api.libs.json._
+import play.api.libs.ws._
 import java.net.URL
 
 
@@ -12,16 +9,16 @@ class HDFSAccess(baseUrl: String, user: Option[String] = None) extends FileSyste
 
   import FileSystem._
 
-  val conf = Config(
-    followRedirects = false,
-    keepAlive = true,
-    connectTimeout = 3000,
-    readTimeout = 20000)
+  //val conf = Config(
+  //  followRedirects = false,
+  //  keepAlive = true,
+  //  connectTimeout = 3000,
+  //  readTimeout = 20000)
 
-  val http = new HttpClient(conf)
+  //val http = new HttpClient(conf)
 
-  val httpFollow = new HttpClient(conf.copy(
-    followRedirects = true))
+  val wsConfig = WSClientConfig()
+  val ws = WS
 
   val userParam = user match {
     case Some(u) => s"&user.name=$u"
@@ -33,6 +30,7 @@ class HDFSAccess(baseUrl: String, user: Option[String] = None) extends FileSyste
 
 
   def ls(path: String): List[Entry] = {
+    val request = ws.
     val response = http.get(url(path, "LISTSTATUS"))
     val parsed   = (Json.parse(response.body.asString) \ "FileStatuses" \ "FileStatus")
     val prefix = if (path.last == '/') path else path + "/"
