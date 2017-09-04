@@ -1,7 +1,8 @@
 package com.soundcloud.spdt.serve
 
 import play.api.libs.json._
-import play.api.libs.ws._
+
+import scalaj.http.{Http, HttpOptions}
 import java.net.URL
 
 
@@ -9,34 +10,21 @@ class HDFSAccess(baseUrl: String, user: Option[String] = None) extends FileSyste
 
   import FileSystem._
 
-  //val conf = Config(
-  //  followRedirects = false,
-  //  keepAlive = true,
-  //  connectTimeout = 3000,
-  //  readTimeout = 20000)
 
-  //val http = new HttpClient(conf)
-
-  val wsConfig = WSClientConfig()
-  val ws = WS
-
-  val userParam = user match {
-    case Some(u) => s"&user.name=$u"
-    case None    => ""
-  }
-
-  private def url(path: String, operation: String, paramStr: String = "") =
-    new URL("%s%s?op=%s%s%s".format(baseUrl, path, operation, paramStr, userParam))
-
+  private def httpRequest(path: String, operation: String, params: Map[String, String] = Map(), followRedirects: Boolean = false) =
+    Http(baseUrl + path)
+      .param("op", operation)
+      .params(params ++ user.map(u => ("user.name", u)).toSeq)
+      .timeout(3000, 20000)
+      .option(HttpOptions.followRedirects(followRedirects))
 
   def ls(path: String): List[Entry] = {
-    val request = ws.
-    val response = http.get(url(path, "LISTSTATUS"))
-    val parsed   = (Json.parse(response.body.asString) \ "FileStatuses" \ "FileStatus")
+    val response = httpRequest(path, "LISTSTATUS").asString
+    val parsed = Json.parse(response.body) \ "FileStatuses" \ "FileStatus"
     val prefix = if (path.last == '/') path else path + "/"
 
     parsed match {
-      case ary: JsArray => {
+      case JsDefined(ary: JsArray) =>
         ary.value.map(item => {
           val modificationTime = (item \ "modificationTime").as[Long]
           val fullPath = prefix + (item \ "pathSuffix").as[String]
@@ -48,15 +36,16 @@ class HDFSAccess(baseUrl: String, user: Option[String] = None) extends FileSyste
             File(fullPath, modificationTime, sizeInBytes)
           }
         }).toList
-      }
       case _ => List()
     }
   }
 
   def rm(path: String): Boolean =
-    (Json.parse(http.delete(url(path, "DELETE", "&recursive=true")).body.asString)
-      \ "boolean").as[Boolean]
-
+    (
+      Json.parse(
+        httpRequest(path, "DELETE", Map("recursive" -> "true")).method("DELETE").asString.body
+      ) \ "boolean"
+    ).as[Boolean]
 
   def read(path: String,
            iterByteSizeOpt: Option[Int] = None): Iterable[Array[Byte]] =
@@ -65,29 +54,29 @@ class HDFSAccess(baseUrl: String, user: Option[String] = None) extends FileSyste
   class BodyIterable(path: String,
                      iterByteSizeOpt: Option[Int]) extends Iterable[Array[Byte]] {
     def iterator = new Iterator[Array[Byte]] {
-      var offset:Long = 0
+      var offset: Long = 0
       var continue = {
         val lsResults = ls(path)
         lsResults.length == 1 && lsResults.head.isInstanceOf[File]
       }
 
-      def request(oset: Long): (Array[Byte],Boolean) = {
-        val params = iterByteSizeOpt
-          .map(size => "&offset=" + oset + "&length=" + size)
-          .getOrElse("")
+      def request(oset: Long): (Array[Byte], Boolean) = {
+        val params = iterByteSizeOpt match {
+          case Some(length) => Map("length" -> length.toString, "offset" -> oset.toString)
+          case None => Map[String, String]()
+        }
 
-        val requestUrl = url(path, "OPEN", params)
+        val response = httpRequest(path, "OPEN", params, followRedirects = true).asBytes
 
-        val response = httpFollow.get(requestUrl)
-        val body = response.body.asBytes
-        val code = response.status.code
+        val body = response.body
+        val code = response.code
         (body, code == 200 && iterByteSizeOpt.isDefined && body.length == iterByteSizeOpt.get)
       }
 
       def next: Array[Byte] = {
         val (bodyBytes, isIncomplete) = request(offset)
         continue = isIncomplete
-        offset  += bodyBytes.length
+        offset += bodyBytes.length
         bodyBytes
       }
 
@@ -99,23 +88,22 @@ class HDFSAccess(baseUrl: String, user: Option[String] = None) extends FileSyste
     create(path, body.getBytes)
 
   def create(path: String, body: Array[Byte]): Boolean = {
-    val redirectResponse = http.put(
-      url = url(path, "CREATE"),
-      body = RequestBody(MediaType.TEXT_PLAIN),
-      requestHeaders = Headers())
-    if (redirectResponse.status.code != 307) {
-      return false
+    val redirectResponse = httpRequest(path, "CREATE")
+      .method("PUT")
+      .asString
+
+    if (redirectResponse.code != 307) {
+      false
     } else {
 
-      val location = new URL(
-        redirectResponse.headers.get(new HeaderName("Location")).get.value)
+      val location = redirectResponse.location.get
 
-      val uploadResponse = http.put(
-        url = location,
-        body = RequestBody(body, MediaType.TEXT_PLAIN),
-        requestHeaders = Headers(HeaderName.ACCEPT -> "application/octet-stream"))
+      val uploadResponse = Http(location)
+        .put(body)
+        .header("Content-Type", "application/octet-stream")
+        .asBytes
 
-      uploadResponse.status.code == 201
+      uploadResponse.code == 201
     }
   }
 
@@ -123,23 +111,22 @@ class HDFSAccess(baseUrl: String, user: Option[String] = None) extends FileSyste
     append(path, body.getBytes)
 
   def append(path: String, body: Array[Byte]): Boolean = {
-    val redirectResponse = http.post(
-      url = url(path, "APPEND"),
-      body = Some(RequestBody(MediaType.TEXT_PLAIN)),
-      requestHeaders = Headers())
-    if (redirectResponse.status.code != 307) {
-      return false
+    val redirectResponse = httpRequest(path, "APPEND")
+      .method("POST")
+      .asString
+
+    if (redirectResponse.code != 307) {
+      false
     } else {
+      val location = redirectResponse.location.get
 
-      val location = new URL(
-        redirectResponse.headers.get(new HeaderName("Location")).get.value)
+      val uploadResponse = Http(location)
+        .postData(body)
+        .header("Content-Type", "text/plain")
+        .header("Accept", "application/octet-stream")
+        .asBytes
 
-      val uploadResponse = http.post(
-        url = location,
-        body = Some(RequestBody(body, MediaType.TEXT_PLAIN)),
-        requestHeaders = Headers(HeaderName.ACCEPT -> "application/octet-stream"))
-
-      uploadResponse.status.code == 200
+      uploadResponse.code == 200
     }
   }
 }

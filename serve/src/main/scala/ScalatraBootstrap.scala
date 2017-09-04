@@ -1,7 +1,7 @@
 import org.scalatra._
 
 import com.soundcloud.spdt.serve.ApiServlet
-import com.soundcloud.spdt.serve.Worker
+import com.soundcloud.spdt.serve.Application
 
 import org.slf4j.LoggerFactory
 
@@ -16,7 +16,7 @@ class Scalatra extends LifeCycle {
 
     log.info(msg("Starting worker servlets."))
 
-    Worker.servlets.map(servlet => context.mount(servlet, "/*"))
+    Application.servlets.foreach(servlet => context.mount(servlet, "/*"))
 
     log.info(msg("Worker servlets mounted."))
   }

@@ -1,23 +1,18 @@
 package com.soundcloud.spdt.serve
 
+import java.lang.System.{getProperty => property}
+import java.util.{Locale, TimeZone}
+
+import com.soundcloud.spdt.SPDT
 import io.prometheus.client.exporter.MetricsServlet
-
-import System.{ getProperty => property }
-import java.util.{ Date, Locale, TimeZone }
 import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.servlet.ServletHolder
 import org.eclipse.jetty.webapp.WebAppContext
-import org.eclipse.jetty.servlet.{ ServletContextHandler, ServletHolder }
-
-import com.soundcloud.spdt.{ SPDT, DecisionTree }
-
 import org.scalatra.ScalatraServlet
-
-import java.util.concurrent.atomic.AtomicReference
-
 import org.slf4j.LoggerFactory
 
 
-object Worker {
+object Application {
 
   val servlets = scala.collection.mutable.Queue[ScalatraServlet]()
   val log = LoggerFactory.getLogger(this.getClass.getName)
@@ -31,8 +26,7 @@ object Worker {
     val modelFolder = property("spdt.directory")
     val modelPath = hdfs.ls(modelFolder)
       .filter(_.path.contains(".spdt"))
-      .sortBy(_.modifiedAt)
-      .last
+      .maxBy(_.modifiedAt)
       .path
 
     log.info("Loading model from hdfs: %s".format(modelPath))
