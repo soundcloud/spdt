@@ -35,13 +35,13 @@ Set a weight on classification errors used during MDL pruning. Higher weights pe
 By default, SPDT assumes all features are real-valued. If your dataset is comprised solely of boolean variables, you must enable them in SPDT:
 
 ```
-./compute/bin/spdt --boolean-features <other_opts>
+./bin/spdt --boolean-features <other_opts>
 ```
 
 If your dataset contains a mix of boolean and real-valued features, you must specify which are real-valued in a comma-separated list and enable boolean features:
 
 ```
-./compute/bin/spdt --boolean-features --real-features 0,1,2 <other_opts>
+./bin/spdt --boolean-features --real-features 0,1,2 <other_opts>
 ```
 
 ### --impurity-limit
@@ -73,7 +73,7 @@ $ head -n 3 feature_map.tsv
 Next, call spdt with the print option:
 
 ```
-$ ./compute/bin/spdt --model-path diabetes_2015-01-20_143112.spdt --print feature_map.tsv
+$ ./bin/spdt --model-path diabetes_2015-01-20_143112.spdt --print feature_map.tsv
 INFO Loading model: diabetes_2015-01-20_143112.spdt
 INFO dotfile written to ./spdt.dot
 $

@@ -4,9 +4,9 @@ set -u
 
 exec 2>&1
 
-BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../.."
+BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
 
-jar=$BASE_DIR/compute/target/scala-2.11/spdt-compute.jar
+jar=$BASE_DIR/compute/target/scala-2.12/spdt-compute.jar
 
 export LD_LIBRARY_PATH=target/lib
 
@@ -17,4 +17,4 @@ java -jar \
   -Dfile.encoding="UTF-8" \
   -Xms512M \
   -Xmx8192M \
-  $jar com.soundcloud.spdt.CLI "$@"
+  $jar "$@"

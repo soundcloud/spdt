@@ -1,11 +1,12 @@
 def subProject(name: String, maybeMainClass: Option[String] = None): Project = {
   val generalSettings = Defaults.coreDefaultSettings ++ Seq(
     parallelExecution in IntegrationTest := false,
-    scalaVersion := "2.12.0",
-    mainClass in Compile := maybeMainClass
+    scalaVersion := "2.12.2",
+    mainClass in Compile := maybeMainClass,
+    assemblyJarName in assembly := s"spdt-$name.jar",
+    test in assembly := false
   )
   Project(id = s"spdt-$name", base = file(name), settings = generalSettings ++ Defaults.itSettings)
-    //.configs(IntegrationTest)
 }
 
 lazy val root = Project(
@@ -15,6 +16,6 @@ lazy val root = Project(
   aggregate = Seq(serve, compute)
 )
 
-lazy val compute = subProject("compute", None)
+lazy val compute = subProject("compute", Some("com.soundcloud.spdt.Application"))
 
-lazy val serve = subProject("serve", None).dependsOn(compute)
+lazy val serve = subProject("serve", Some("com.soundcloud.spdt.serve.Application")).dependsOn(compute)
