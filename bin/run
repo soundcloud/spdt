@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -u
+
+APP=$1
+MEMORY=$2
+
+shift 2
+
+exec 2>&1
+
+BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
+
+JAR=$BASE_DIR/$APP/target/scala-2.12/spdt-${APP}.jar
+
+export LD_LIBRARY_PATH=target/lib
+
+java -jar \
+  -Dlogback.configurationFile="file://${BASE_DIR}/config/logback.run.xml" \
+  -Dprocess.name="cli" \
+  -Dmetrics.namespace="spdt" \
+  -Dfile.encoding="UTF-8" \
+  -Xms512M \
+  -Xmx${MEMORY} \
+  $JAR "$@"

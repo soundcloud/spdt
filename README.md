@@ -103,8 +103,14 @@ The following example specifies a sample from the class `1`. This sample has fea
 
 SPDT provides a basic HTTP API that enables classification and model updates. By default, models are loaded from and saved to [HDFS](https://en.wikipedia.org/wiki/Apache_Hadoop#HDFS).
 
-### Initialization
+### Running
 The serving layer loads the most recent model from the HDFS directory that is specified by the environment variable `SPDT_DIRECTORY`. New versions of the model that result from requests to the `/update` endpoint are saved in this directory as snapshots.
+
+You must also specify the port for the API to serve on using `WEB_PORT` and the base url for a web HDFS service for model storage with `WEB_HDFS`.
+
+```bash
+SPDT_DIRECTORY='/tmp/dir' WEB_HDFS_BASE_URL='http://localhost/webhdfs/v1' WEB_PORT=5000 ./bin/serve
+```
 
 ### /classify
 To classify a sample, send a POST request with a sample represented in JSON to the `/classify` endpoint. Format the sample JSON as follows:

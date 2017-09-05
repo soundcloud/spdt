@@ -1,6 +1,5 @@
 package com.soundcloud.spdt.serve
 
-import java.lang.System.{getProperty => property}
 import java.util.{Locale, TimeZone}
 
 import com.soundcloud.spdt.SPDT
@@ -12,18 +11,30 @@ import org.scalatra.ScalatraServlet
 import org.slf4j.LoggerFactory
 
 
+
 object Application {
+
+  def envGet(name: String): String = sys.env.get(name) match {
+    case Some(value) =>
+      log.info(s"Parameter [$name] initialized to [$value].")
+      value
+    case None =>
+      throw new IllegalArgumentException(s"Parameter [$name] is not specified!")
+  }
 
   val servlets = scala.collection.mutable.Queue[ScalatraServlet]()
   val log = LoggerFactory.getLogger(this.getClass.getName)
 
+  val port = envGet("WEB_PORT").toInt
+  val webHdfsBaseUrl = envGet("WEB_HDFS_BASE_URL")
+  val modelFolder = envGet("SPDT_DIRECTORY")
+
   def main(args: Array[String]) {
     localize()
 
-    log.info("Checking HDFS for model in directory: %s".format(property("spdt.directory")))
+    log.info("Checking HDFS for model in directory: %s".format(modelFolder))
 
-    val hdfs = new HDFSAccess(property("web.hdfs"))
-    val modelFolder = property("spdt.directory")
+    val hdfs = new HDFSAccess(webHdfsBaseUrl)
     val modelPath = hdfs.ls(modelFolder)
       .filter(_.path.contains(".spdt"))
       .maxBy(_.modifiedAt)
@@ -33,7 +44,8 @@ object Application {
 
     val spdt = SPDT.fromPickle(new String(hdfs.read(modelPath).iterator.reduce(_ ++ _)))
 
-    log.info("Starting server on port %s.".format(property("web.port")))
+
+    log.info("Starting server on port %d.".format(port))
 
     servlets += new ApiServlet(
       modelPath = modelPath,
@@ -41,7 +53,7 @@ object Application {
       spdtSeed = spdt,
       saveSnapshots = true)
 
-    val server = new Server(property("web.port").toInt)
+    val server = new Server(port)
     val context = new WebAppContext("serve/src/main/webapp", "/")
     context.addServlet(new ServletHolder(new MetricsServlet()), "/metrics")
     server.setHandler(context)
@@ -51,10 +63,9 @@ object Application {
       server.join()
       log.info("http server for 'spdt.serve' up")
     } catch {
-      case e: Exception => {
+      case e: Exception =>
         e.printStackTrace()
         System.exit(1)
-      }
     }
   }
 
