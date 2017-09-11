@@ -1,20 +1,35 @@
 package com.soundcloud.spdt
 
 import org.rogach.scallop._
-import scala.io.Source
-
-import java.text.SimpleDateFormat
 
 import org.slf4j.LoggerFactory
 
 
 object Application extends App {
 
-  val log = LoggerFactory.getLogger(this.getClass.getName)
 
   override def main(args: Array[String]) {
-    val opts = new ScallopConf(args.toList) {
 
+    val log = LoggerFactory.getLogger(this.getClass)
+
+    def report(
+                name: String,
+                tp: Double,
+                tn: Double,
+                fp: Double,
+                fn: Double,
+                acc: Double,
+                tpr: Double,
+                pre: Double,
+                fpr: Double) {
+      log.info(name + " TPs=%d, TNs=%d, FPs=%d, FNs=%d".format(tp.toInt, tn.toInt, fp.toInt, fn.toInt))
+      log.info(name + " ACC\t" + acc)
+      log.info(name + " REC\t" + tpr)
+      log.info(name + " PRE\t" + pre)
+      log.info(name + " FPR\t" + fpr)
+    }
+
+    val opts = new ScallopConf(args.toList) {
       banner("""Usage: spdt [OPTIONS]...
                 |Streaming parallel decision trees for classification.
                 |Options:
@@ -228,22 +243,6 @@ object Application extends App {
     }
   }
 
-  def report(
-    name: String,
-    tp: Double,
-    tn: Double,
-    fp: Double,
-    fn: Double,
-    acc: Double,
-    tpr: Double,
-    pre: Double,
-    fpr: Double) {
-    log.info(name + " TPs=%d, TNs=%d, FPs=%d, FNs=%d".format(tp.toInt, tn.toInt, fp.toInt, fn.toInt))
-    log.info(name + " ACC\t" + acc)
-    log.info(name + " REC\t" + tpr)
-    log.info(name + " PRE\t" + pre)
-    log.info(name + " FPR\t" + fpr)
-  }
 
   def exists(path: String) = {
     val f = new java.io.File(path)

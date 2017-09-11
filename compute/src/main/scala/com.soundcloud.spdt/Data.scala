@@ -19,15 +19,17 @@ object Data {
     (Map("-1" -> 0, "0" -> 0, "1" -> 1, "+1" -> 1),
      Map(0 -> "-1", 1 -> "+1"))
   } else {
-    val forwardMap = labels.sorted.zipWithIndex.map{case (l, i) => {
-      if (l > 0) {
-        List(("+" + l.toString) -> i, l.toString -> i)
-      } else {
-        List(l.toString -> i)
-      }
-    }}.flatten.toMap
-    val backwardMap = labels.sorted.zipWithIndex.map{case (l, i) =>
-      (i -> ((if (l > 0) "+" else "") + l.toString))}.toMap
+    val forwardMap = labels.sorted.zipWithIndex.flatMap{
+      case (l, i) =>
+        if (l > 0) {
+          List(("+" + l.toString) -> i, l.toString -> i)
+        } else {
+          List(l.toString -> i)
+        }
+    }.toMap
+    val backwardMap = labels.sorted.zipWithIndex.map{
+      case (l, i) => i -> ((if (l > 0) "+" else "") + l.toString)
+    }.toMap
     (forwardMap, backwardMap)
   }
 

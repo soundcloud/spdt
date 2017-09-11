@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <target>System.out</target>
+    <appender name="STDOUT" target="SYSTEM_OUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%date{MM/dd HH:mm:ss} %-5level[%.15thread] %logger{1} %msg%n</pattern>
         </encoder>
     </appender>
-
-    <logger name="scala.slick" level="ERROR" />
-
     <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

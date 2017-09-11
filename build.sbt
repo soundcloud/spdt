@@ -12,7 +12,9 @@ def subProject(name: String, maybeMainClass: Option[String] = None): Project = {
 lazy val root = Project(
   id = "spdt",
   base = file("."),
-  settings = Seq(name := "spdt"),
+  settings = Seq(
+    name := "spdt"
+  ),
   aggregate = Seq(serve, compute)
 )
 
