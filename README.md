@@ -35,13 +35,13 @@ Set a weight on classification errors used during MDL pruning. Higher weights pe
 By default, SPDT assumes all features are real-valued. If your dataset is comprised solely of boolean variables, you must enable them in SPDT:
 
 ```
-./compute/bin/spdt --boolean-features <other_opts>
+./bin/spdt --boolean-features <other_opts>
 ```
 
 If your dataset contains a mix of boolean and real-valued features, you must specify which are real-valued in a comma-separated list and enable boolean features:
 
 ```
-./compute/bin/spdt --boolean-features --real-features 0,1,2 <other_opts>
+./bin/spdt --boolean-features --real-features 0,1,2 <other_opts>
 ```
 
 ### --impurity-limit
@@ -73,7 +73,7 @@ $ head -n 3 feature_map.tsv
 Next, call spdt with the print option:
 
 ```
-$ ./compute/bin/spdt --model-path diabetes_2015-01-20_143112.spdt --print feature_map.tsv
+$ ./bin/spdt --model-path diabetes_2015-01-20_143112.spdt --print feature_map.tsv
 INFO Loading model: diabetes_2015-01-20_143112.spdt
 INFO dotfile written to ./spdt.dot
 $
@@ -103,8 +103,14 @@ The following example specifies a sample from the class `1`. This sample has fea
 
 SPDT provides a basic HTTP API that enables classification and model updates. By default, models are loaded from and saved to [HDFS](https://en.wikipedia.org/wiki/Apache_Hadoop#HDFS).
 
-### Initialization
+### Running
 The serving layer loads the most recent model from the HDFS directory that is specified by the environment variable `SPDT_DIRECTORY`. New versions of the model that result from requests to the `/update` endpoint are saved in this directory as snapshots.
+
+You must also specify the port for the API to serve on using `WEB_PORT` and the base url for a web HDFS service for model storage with `WEB_HDFS`.
+
+```bash
+SPDT_DIRECTORY='/tmp/dir' WEB_HDFS_BASE_URL='http://localhost/webhdfs/v1' WEB_PORT=5000 ./bin/serve
+```
 
 ### /classify
 To classify a sample, send a POST request with a sample represented in JSON to the `/classify` endpoint. Format the sample JSON as follows:

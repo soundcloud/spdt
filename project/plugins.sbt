@@ -1,7 +1,9 @@
-resolvers += Resolver.url("artifactory", url("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns)
+resolvers ++= Seq(
+  "Typesafe Repository"  at "http://repo.typesafe.com/typesafe/releases/",
+  "Maven Central Server" at "http://repo1.maven.org/maven2",
+  "OSS Sonatype"         at "https://oss.sonatype.org/content/repositories/snapshots",
+  "artifactory"          at "http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"
+)
 
-addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.10.2")
 
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.4")
-
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.8")
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.5")

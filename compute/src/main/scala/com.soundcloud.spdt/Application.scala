@@ -8,12 +8,12 @@ import java.text.SimpleDateFormat
 import org.slf4j.LoggerFactory
 
 
-object CLI {
+object Application extends App {
 
   val log = LoggerFactory.getLogger(this.getClass.getName)
 
-  def main(args: Array[String]) {
-    val opts = new ScallopConf(args.toList.tail) {
+  override def main(args: Array[String]) {
+    val opts = new ScallopConf(args.toList) {
 
       banner("""Usage: spdt [OPTIONS]...
                 |Streaming parallel decision trees for classification.
@@ -95,6 +95,7 @@ object CLI {
         "file with tsv feature map for generating a dotfile, format: <hashval>\t<feature_label>")
     }
 
+    opts.verify()
     val doTrain = opts.trainingData.isDefined
     val doPrune = opts.errorWeight.isDefined
     val doTest  = opts.evalData.isDefined
