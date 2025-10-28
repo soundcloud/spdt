@@ -1,4 +1,3 @@
-package com.soundcloud.spdt
 
 import breeze.linalg.DenseVector
 

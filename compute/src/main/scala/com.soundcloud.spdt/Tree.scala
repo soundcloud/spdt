@@ -1,4 +1,3 @@
-package com.soundcloud.spdt
 
 import scala.collection.immutable.HashMap
 import System.{ currentTimeMillis => now }

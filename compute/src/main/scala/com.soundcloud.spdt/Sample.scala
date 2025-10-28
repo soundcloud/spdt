@@ -1,4 +1,3 @@
-package com.soundcloud.spdt
 
 import play.api.libs.json._
 

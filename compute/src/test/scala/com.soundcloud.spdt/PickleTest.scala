@@ -1,4 +1,3 @@
-package com.soundcloud.spdt
 
 import org.scalatest.FlatSpec
 import scala.collection.immutable.HashMap

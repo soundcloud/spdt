@@ -1,9 +1,7 @@
-package com.soundcloud.spdt.serve
 
 import org.scalatest.FlatSpecLike
 import org.scalatra.test.scalatest._
 
-import com.soundcloud.spdt.{
   SPDT,
   DecisionTree,
   Sample

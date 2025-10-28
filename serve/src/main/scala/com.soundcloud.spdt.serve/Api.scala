@@ -1,4 +1,3 @@
-package com.soundcloud.spdt.serve
 
 import scala.util.{ Success, Failure }
 
@@ -10,8 +9,6 @@ import scalate.ScalateSupport
 
 import java.util.Date
 
-import com.soundcloud.spdt.LogFormat.{ mapToJson => jsonize, _ }
-import com.soundcloud.spdt.{
   SPDT,
   Sample,
   LogFormat

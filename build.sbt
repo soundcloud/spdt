@@ -18,6 +18,4 @@ lazy val root = Project(
   aggregate = Seq(serve, compute)
 )
 
-lazy val compute = subProject("compute", Some("com.soundcloud.spdt.Application"))
 
-lazy val serve = subProject("serve", Some("com.soundcloud.spdt.serve.Application")).dependsOn(compute)

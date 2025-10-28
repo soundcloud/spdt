@@ -1,8 +1,6 @@
-package com.soundcloud.spdt.serve
 
 import java.util.{Locale, TimeZone}
 
-import com.soundcloud.spdt.SPDT
 import io.prometheus.client.exporter.MetricsServlet
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletHolder

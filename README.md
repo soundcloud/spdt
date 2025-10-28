@@ -1,7 +1,6 @@
 Streaming Parallel Decision Tree
 ================================
 
-![tree!](https://github.com/soundcloud/SPDT/blob/master/config/tree.png?raw=true)
 
 A streaming parallel decision tree (SPDT) enables parallelized training of a [decision tree classifier](https://en.wikipedia.org/wiki/Decision_tree_learning) and the ability to make updates to this tree with streaming data. Basic MDL-based pruning is also implemented to prevent overfitting.
 
@@ -59,7 +58,6 @@ Specify the maximum number of times that the algorithm can attempt to expand lea
 ### --print
 Specify a feature-map file for generating a `dot` file with a graph that represents a trained model. In the resulting graph, nodes are labeled with a period-separated concatenation of the node's ID, feature, and class label. For example:
 
-![dot!](https://github.com/soundcloud/SPDT/blob/master/config/dottree.png?raw=true)
 
 To generate the preceding graph, first provide a `tsv` feature-map file that maps feature indexes from the `LIBSVM` sparse data format to strings:
 
@@ -166,7 +164,5 @@ The resulting model is saved to HDFS in the directory that you specified with th
 
 ## Copyright
 
-Copyright (c) 2013 [SoundCloud Ltd.](http://soundcloud.com) | [Trust, Safety
-& Security Team](mailto:sketchy@soundcloud.com).
 
 See the [LICENSE](LICENSE) file for details

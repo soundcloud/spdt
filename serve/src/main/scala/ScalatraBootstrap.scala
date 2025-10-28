@@ -1,7 +1,5 @@
 import org.scalatra._
 
-import com.soundcloud.spdt.serve.ApiServlet
-import com.soundcloud.spdt.serve.Application
 
 import org.slf4j.LoggerFactory
 

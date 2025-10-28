@@ -1,4 +1,3 @@
-package com.soundcloud.spdt
 
 //// key
 ////

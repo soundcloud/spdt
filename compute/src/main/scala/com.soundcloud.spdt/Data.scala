@@ -1,4 +1,3 @@
-package com.soundcloud.spdt
 
 import scala.collection.mutable.MutableList
 

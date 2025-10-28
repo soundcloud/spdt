@@ -1,4 +1,3 @@
-package com.soundcloud.spdt
 
 import org.rogach.scallop._
 
@@ -37,7 +36,6 @@ object Application extends App {
 
       footer("""|
                 |© 2014 Trust Safety & Security Team | SoundCloud Ltd.
-                |Contact: security@soundcloud.com""".stripMargin)
 
       val trainingData = opt[String](
         "training-data",

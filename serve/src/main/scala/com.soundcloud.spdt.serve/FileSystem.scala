@@ -1,4 +1,3 @@
-package com.soundcloud.spdt.serve
 
 object FileSystem {
   abstract class Entry {
